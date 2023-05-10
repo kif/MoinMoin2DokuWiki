@@ -52,18 +52,37 @@ def formating(line):
     line = line.replace("`", "''")  # monospaced
     line = line.replace("--(", "<del>")  # deleted
     line = line.replace(")--", "</del>")  # deleted
+    if line.startswith("{{{#!"):
+        line = line.replace("{{{#!", "<code ") + ">"  # code block
+    line = line.replace("{{{", "<code>")  # code block
+    line = line.replace("}}}", "</code>")  # code block
+    return line
+
+
+def restore(line):
+    """restore DokuWiki formating"""
+    if line.startswith("<numbered order="):
+        end = line.index(">")
+        order = int(line[len("<numbered order="):end])
+        line = "  "*order + "- " + line[end + 1:]
+    elif line.startswith("<bulleted order="):
+        end = line.index(">")
+        order = int(line[len("<bulleted order="):end])
+        line = "  "*order + "* " + line[end + 1:]
     return line
 
 
 if __name__ == "__main__":
-    document = {}
+    document_moin = []
+    document_doku = []
     with open(sys.argv[1], "r") as r:
         for line in r:
             rline = line.rstrip()
-            document[line] = rline
-    for line, rline in document.items():
+            document_moin.append(rline)
+
+    for rline in document_moin:
         if rline:
             rline = formating(numbered_list(bulleted_list(fix_header(rline))))
-        document[line] = rline
-    print("\n".join(document.values()))
+        document_doku.append(restore(rline))
+    print("\n".join(document_doku))
 
