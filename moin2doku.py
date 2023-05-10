@@ -42,6 +42,8 @@ def numbered_list(rline):
         sstart = sline.index(".")
         if " " not in sline[:sstart]:
             index = rstart - sstart
+        else:
+            return rline
         rline = f"<numbered order={index}>{sline[sstart+1:].strip()}"
     return rline
 
